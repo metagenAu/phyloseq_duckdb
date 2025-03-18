@@ -1,4 +1,14 @@
-# DuckDB-based implementation for handling large sparse OTU tables
+#' DuckDB-based OTU table class
+#'
+#' @slot con DuckDB connection
+#' @slot taxa_are_rows Logical indicating if taxa are rows
+#' @exportClass otu_table_duckdb
+setClass("otu_table_duckdb",
+         slots = c(
+           con = "DBIConnection",
+           taxa_are_rows = "logical"
+         ))
+
 #' Create a DuckDB-based OTU table
 #'
 #' This function creates and manages OTU (Operational Taxonomic Unit) tables using DuckDB,
@@ -8,7 +18,7 @@
 #' @param object A matrix, data.frame, or existing otu_table object to convert
 #' @param taxa_are_rows Logical indicating if taxa are represented as rows (TRUE) or columns (FALSE)
 #' @param db_path Path to store the DuckDB database. Default is temporary
-#' @return A DuckDB connection with OTU table
+#' @return An otu_table_duckdb object
 #' @examples
 #' # Create from matrix
 #' mat <- matrix(sample(0:100, 100), 10, 10)
@@ -33,6 +43,7 @@ otu_table_duckdb <- function(object, taxa_are_rows, db_path = tempfile()) {
     } else if (is.matrix(object)) {
         mat <- object
     } else {
+        DBI::dbDisconnect(con, shutdown = TRUE)
         stop("Invalid input type for otu_table_duckdb")
     }
     
@@ -43,6 +54,7 @@ otu_table_duckdb <- function(object, taxa_are_rows, db_path = tempfile()) {
     } else {
         taxa_ids <- colnames(mat)
         sample_ids <- rownames(mat)
+        mat <- t(mat)  # Transpose to make taxa rows for consistent DB structure
     }
     
     # Convert to long format (sparse representation)
@@ -68,10 +80,19 @@ otu_table_duckdb <- function(object, taxa_are_rows, db_path = tempfile()) {
         value = c(taxa_are_rows)
     ), overwrite = TRUE)
     
-    # Return connection
-    class(con) <- c("otu_table_duckdb", class(con))
-    attr(con, "taxa_are_rows") <- taxa_are_rows
-    return(con)
+    # Create and return S4 object
+    new("otu_table_duckdb", con = con, taxa_are_rows = taxa_are_rows)
+}
+
+#' Close DuckDB connection for OTU table
+#'
+#' @param x An otu_table_duckdb object
+#' @export
+close_otu_table_duckdb <- function(x) {
+    if (!is(x, "otu_table_duckdb")) {
+        stop("Input must be an otu_table_duckdb object")
+    }
+    DBI::dbDisconnect(x@con, shutdown = TRUE)
 }
 
 #' Calculate taxa sums for DuckDB OTU table
@@ -79,7 +100,7 @@ otu_table_duckdb <- function(object, taxa_are_rows, db_path = tempfile()) {
 #' Efficiently calculates the sum of abundances for each taxa across all samples.
 #' Takes advantage of DuckDB's columnar storage for fast aggregation.
 #'
-#' @param x An otu_table_duckdb connection
+#' @param x An otu_table_duckdb object
 #' @return Named numeric vector of taxa sums
 #' @examples
 #' # Calculate taxa sums
@@ -87,11 +108,11 @@ otu_table_duckdb <- function(object, taxa_are_rows, db_path = tempfile()) {
 #' @seealso \code{\link{sample_sums_duckdb}}
 #' @export
 taxa_sums_duckdb <- function(x) {
-    if (!inherits(x, "otu_table_duckdb")) {
+    if (!is(x, "otu_table_duckdb")) {
         stop("Input must be an otu_table_duckdb object")
     }
     
-    result <- DBI::dbGetQuery(x, "
+    result <- DBI::dbGetQuery(x@con, "
         SELECT taxa_id, SUM(abundance) as sum
         FROM otu_table
         GROUP BY taxa_id
@@ -104,15 +125,15 @@ taxa_sums_duckdb <- function(x) {
 
 #' Calculate sample sums for DuckDB OTU table
 #'
-#' @param x An otu_table_duckdb connection
+#' @param x An otu_table_duckdb object
 #' @return Named numeric vector of sample sums
 #' @export
 sample_sums_duckdb <- function(x) {
-    if (!inherits(x, "otu_table_duckdb")) {
+    if (!is(x, "otu_table_duckdb")) {
         stop("Input must be an otu_table_duckdb object")
     }
     
-    result <- DBI::dbGetQuery(x, "
+    result <- DBI::dbGetQuery(x@con, "
         SELECT sample_id, SUM(abundance) as sum
         FROM otu_table
         GROUP BY sample_id
@@ -128,16 +149,16 @@ sample_sums_duckdb <- function(x) {
 #' Apply common transformations to abundance data, such as log or square root.
 #' Operations are performed efficiently using DuckDB's SQL engine.
 #'
-#' @param x An otu_table_duckdb connection
+#' @param x An otu_table_duckdb object
 #' @param transform The transformation to apply ('log10', 'log2', 'sqrt')
-#' @return A new otu_table_duckdb connection with transformed values
+#' @return A new otu_table_duckdb object with transformed values
 #' @examples
 #' # Log transform abundances
 #' otu_log <- transform_sample_counts_duckdb(otu, "log10")
 #' @seealso \code{\link{filter_taxa_duckdb}}
 #' @export
 transform_sample_counts_duckdb <- function(x, transform = "log10") {
-    if (!inherits(x, "otu_table_duckdb")) {
+    if (!is(x, "otu_table_duckdb")) {
         stop("Input must be an otu_table_duckdb object")
     }
     
@@ -149,37 +170,37 @@ transform_sample_counts_duckdb <- function(x, transform = "log10") {
         stop("Unsupported transformation")
     )
     
-    DBI::dbExecute(x, sprintf("
+    DBI::dbExecute(x@con, sprintf("
         CREATE TABLE otu_table_transformed AS
         SELECT taxa_id, sample_id, %s as abundance
         FROM otu_table
     ", transform_sql))
     
     # Replace original table
-    DBI::dbExecute(x, "DROP TABLE otu_table")
-    DBI::dbExecute(x, "ALTER TABLE otu_table_transformed RENAME TO otu_table")
+    DBI::dbExecute(x@con, "DROP TABLE otu_table")
+    DBI::dbExecute(x@con, "ALTER TABLE otu_table_transformed RENAME TO otu_table")
     
     # Recreate indices
-    DBI::dbExecute(x, "CREATE INDEX idx_taxa ON otu_table(taxa_id)")
-    DBI::dbExecute(x, "CREATE INDEX idx_sample ON otu_table(sample_id)")
+    DBI::dbExecute(x@con, "CREATE INDEX idx_taxa ON otu_table(taxa_id)")
+    DBI::dbExecute(x@con, "CREATE INDEX idx_sample ON otu_table(sample_id)")
     
     return(x)
 }
 
 #' Filter OTU table based on abundance thresholds using DuckDB
 #'
-#' @param x An otu_table_duckdb connection
+#' @param x An otu_table_duckdb object
 #' @param min_abundance Minimum abundance threshold
 #' @param min_samples Minimum number of samples where taxa must be present
-#' @return Filtered otu_table_duckdb connection
+#' @return Filtered otu_table_duckdb object
 #' @export
 filter_taxa_duckdb <- function(x, min_abundance = 1, min_samples = 1) {
-    if (!inherits(x, "otu_table_duckdb")) {
+    if (!is(x, "otu_table_duckdb")) {
         stop("Input must be an otu_table_duckdb object")
     }
     
     # Create filtered table
-    DBI::dbExecute(x, sprintf("
+    DBI::dbExecute(x@con, sprintf("
         CREATE TABLE otu_table_filtered AS
         SELECT o.*
         FROM otu_table o
@@ -193,23 +214,12 @@ filter_taxa_duckdb <- function(x, min_abundance = 1, min_samples = 1) {
     ", min_abundance, min_samples))
     
     # Replace original table
-    DBI::dbExecute(x, "DROP TABLE otu_table")
-    DBI::dbExecute(x, "ALTER TABLE otu_table_filtered RENAME TO otu_table")
+    DBI::dbExecute(x@con, "DROP TABLE otu_table")
+    DBI::dbExecute(x@con, "ALTER TABLE otu_table_filtered RENAME TO otu_table")
     
     # Recreate indices
-    DBI::dbExecute(x, "CREATE INDEX idx_taxa ON otu_table(taxa_id)")
-    DBI::dbExecute(x, "CREATE INDEX idx_sample ON otu_table(sample_id)")
+    DBI::dbExecute(x@con, "CREATE INDEX idx_taxa ON otu_table(taxa_id)")
+    DBI::dbExecute(x@con, "CREATE INDEX idx_sample ON otu_table(sample_id)")
     
     return(x)
-}
-
-#' Close DuckDB connection and cleanup
-#'
-#' @param x An otu_table_duckdb connection
-#' @export
-close_otu_table_duckdb <- function(x) {
-    if (!inherits(x, "otu_table_duckdb")) {
-        stop("Input must be an otu_table_duckdb object")
-    }
-    DBI::dbDisconnect(x, shutdown = TRUE)
 }
