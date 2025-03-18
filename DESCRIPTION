@@ -1,0 +1,50 @@
+Package: phyloseq_duckdb
+Version: 1.0.0
+Date: 2025-03-14
+Title: DuckDB-optimized handling and analysis of high-throughput microbiome census data
+Description: phyloseq_duckdb provides a DuckDB-optimized implementation for
+    handling and analyzing large-scale microbiome census data. It focuses on
+    memory efficiency through columnar storage and sparse data optimization,
+    making it particularly suitable for large datasets. The package maintains
+    compatibility with the original phyloseq interface while providing
+    significant performance improvements.
+Authors@R: c(
+    person("MetagenAu Team", email = "team@metagenau.org", role = c("aut", "cre")),
+
+License: AGPL-3
+Imports:
+    DBI (>= 1.1.0),
+    duckdb (>= 1.12.0),
+    ggplot2 (>= 2.1.0),
+    methods (>= 3.3.0),
+    reshape2 (>= 1.4.1),
+    vegan (>= 2.5),
+    patchwork,
+    Matrix,
+    tibble (>= 3.0.0),
+    dplyr (>= 1.0.0),
+    magrittr (>= 2.0.0)
+Depends:
+    R (>= 3.3.0)
+Suggests:
+    testthat (>= 1.0.2),
+    knitr (>= 1.16),
+    rmarkdown (>= 1.6)
+VignetteBuilder: knitr
+biocViews: ImmunoOncology, Sequencing, Microbiome, Metagenomics
+URL: https://github.com/metagenAu/phyloseq_duckdb
+BugReports: https://github.com/metagenAu/phyloseq_duckdb/issues
+Collate:
+    'allPackage.R'
+    'otu_table_duckdb.R'
+    'tax_table_duckdb.R'
+    'sample_data_duckdb.R'
+    'phyloseq_duckdb.R'
+    'tax_glom_duckdb.R'
+    'prune_taxa_duckdb.R'
+    'filter_samples_duckdb.R'
+    'psmelt_duckdb.R'
+    'plot_bar_duckdb.R'
+    'plot_ordination_duckdb.R'
+    'duckdb_aliases.R'
+RoxygenNote: 7.2.3

@@ -1,0 +1,53 @@
+###############################################
+#'  DuckDB-optimized handling and analysis of high-throughput microbiome census data.
+#'
+#' A DuckDB-optimized implementation for handling and analyzing large-scale microbiome census data.
+#' It focuses on memory efficiency through columnar storage and sparse data optimization,
+#' making it particularly suitable for large datasets. The package maintains compatibility
+#' with the original phyloseq interface while providing significant performance improvements.
+#'
+#' @section Key Features:
+#' \itemize{
+#'   \item Memory-efficient data transformation using DuckDB
+#'   \item Optimized sparse data handling
+#'   \item Stream processing for large datasets
+#'   \item Full compatibility with original phyloseq interface
+#' }
+#'
+#' @section Core Functions:
+#' \itemize{
+#'   \item \code{otu_table_duckdb}: DuckDB-based OTU table with sparse storage
+#'   \item \code{tax_table_duckdb}: Taxonomy table optimizations
+#'   \item \code{sample_data_duckdb}: Sample metadata handling
+#'   \item \code{phyloseq_duckdb}: Unified interface with optimized diversity calculations
+#' }
+#'
+#' @section Analysis Functions:
+#' \itemize{
+#'   \item \code{tax_glom_duckdb}: Agglomerate taxa by taxonomic rank
+#'   \item \code{prune_taxa_duckdb}: Keep or remove specific taxa
+#'   \item \code{filter_samples_duckdb}: Filter samples based on metadata or abundance
+#' }
+#'
+#' @section Visualization Functions:
+#' \itemize{
+#'   \item \code{psmelt_duckdb}: Efficiently melt phyloseq objects using DuckDB joins
+#'   \item \code{plot_bar_duckdb}: Create bar plots with support for stacking and faceting
+#'   \item \code{plot_ordination_duckdb}: Implement ordination methods (PCoA, NMDS, RDA, CCA)
+#' }
+#'
+#' @import methods
+#' @name phyloseq_duckdb-package
+#' @aliases phyloseq_duckdb
+#' @docType package
+#' @keywords package
+#' @author Paul J. McMurdie \email{joey711@@gmail.com}
+#' @author Susan Holmes
+#'
+#' @seealso
+#' \code{\link{phyloseq_duckdb}}
+#' \code{\link{otu_table_duckdb}}
+#' \code{\link{tax_table_duckdb}}
+#' \code{\link{sample_data_duckdb}}
+NULL
+###############################################

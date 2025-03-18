@@ -1,0 +1,14 @@
+citHeader("To cite phyloseq_duckdb in publications use:")
+
+citEntry(
+  entry = "Article",
+  title = "phyloseq_duckdb: A DuckDB-optimized implementation for efficient microbiome data analysis",
+  author = "Paul J. McMurdie and Susan Holmes",
+  journal = "In preparation",
+  year = "2025",
+  textVersion = paste(
+    "McMurdie PJ, Holmes S (2025).",
+    "phyloseq_duckdb: A DuckDB-optimized implementation for efficient microbiome data analysis.",
+    "In preparation."
+  )
+)
