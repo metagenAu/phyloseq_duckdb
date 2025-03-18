@@ -1,6 +1,6 @@
 <link href="http://joey711.github.com/phyloseq/markdown.css" rel="stylesheet"></link>
 
-# phyloseq_duckdb
+# phyloseqDuckDB
 
 A DuckDB-optimized implementation for handling and analyzing large-scale microbiome census data. This package maintains compatibility with the original phyloseq interface while providing significant performance improvements through columnar storage and sparse data optimization.
 
@@ -40,10 +40,10 @@ All DuckDB functions have aliases without the "_duckdb" suffix for seamless tran
 
 ## Tidyverse Integration
 
-`phyloseq_duckdb` provides seamless integration with the tidyverse ecosystem through `as_tibble` methods. You can easily convert OTU tables, taxonomy tables, and sample data into tibbles while preserving rownames:
+`phyloseqDuckDB` provides seamless integration with the tidyverse ecosystem through `as_tibble` methods. You can easily convert OTU tables, taxonomy tables, and sample data into tibbles while preserving rownames:
 
 ```r
-library(phyloseq_duckdb)
+library(phyloseqDuckDB)
 library(tidyverse)
 
 # Load example data
@@ -72,13 +72,13 @@ tax_tbl %>%
 
 ```r
 # Install from GitHub
-devtools::install_github("metagenAu/phyloseq_duckdb")
+devtools::install_github("metagenAu/phyloseqDuckDB")
 ```
 
 ## Usage
 
 ```r
-library(phyloseq_duckdb)
+library(phyloseqDuckDB)
 
 # Create a phyloseq object with DuckDB backend
 ps <- phyloseq(otu_table(counts_matrix),
@@ -145,10 +145,10 @@ Contributions are welcome! Please feel free to submit a Pull Request. For major 
 If you use this package, please cite:
 
 ```
-@software{phyloseq_duckdb2025,
+@software{phyloseqDuckDB2025,
   author = {{MetagenAu Team}},
-  title = {phyloseq\_duckdb: DuckDB-optimized handling of high-throughput microbiome census data},
+  title = {phyloseqDuckDB: DuckDB-optimized handling of high-throughput microbiome census data},
   year = {2025},
   publisher = {GitHub},
-  url = {https://github.com/metagenAu/phyloseq_duckdb}
+  url = {https://github.com/metagenAu/phyloseqDuckDB}
 }

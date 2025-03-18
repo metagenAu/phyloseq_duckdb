@@ -1,16 +1,14 @@
-Package: phyloseq_duckdb
+Package: phyloseqDuckDB
 Version: 1.0.0
-Date: 2025-03-14
+Date: 2025-03-18
 Title: DuckDB-optimized handling and analysis of high-throughput microbiome census data
-Description: phyloseq_duckdb provides a DuckDB-optimized implementation for
+Description: phyloseqDuckDB provides a DuckDB-optimized implementation for
     handling and analyzing large-scale microbiome census data. It focuses on
     memory efficiency through columnar storage and sparse data optimization,
     making it particularly suitable for large datasets. The package maintains
     compatibility with the original phyloseq interface while providing
     significant performance improvements.
-Authors@R: c(
-    person("MetagenAu Team", email = "team@metagenau.org", role = c("aut", "cre")),
-
+Authors@R: person("MetagenAu Team", email = "team@metagenau.org", role = c("aut", "cre"))
 License: AGPL-3
 Imports:
     DBI (>= 1.1.0),
