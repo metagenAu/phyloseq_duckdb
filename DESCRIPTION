@@ -1,4 +1,5 @@
 Package: phyloseqDuckDB
+Type: Package
 Version: 1.0.0
 Date: 2025-03-18
 Title: DuckDB-optimized handling and analysis of high-throughput microbiome census data
@@ -10,9 +11,12 @@ Description: phyloseqDuckDB provides a DuckDB-optimized implementation for
     significant performance improvements.
 Authors@R: person("MetagenAu Team", email = "team@metagenau.org", role = c("aut", "cre"))
 License: AGPL-3
+Encoding: UTF-8
+Language: en-US
+LazyData: true
 Imports:
     DBI (>= 1.1.0),
-    duckdb (>= 1.12.0),
+    duckdb (>= 1.2.0),
     ggplot2 (>= 2.1.0),
     methods (>= 3.3.0),
     reshape2 (>= 1.4.1),
@@ -23,15 +27,15 @@ Imports:
     dplyr (>= 1.0.0),
     magrittr (>= 2.0.0)
 Depends:
-    R (>= 3.3.0)
+    R (>= 3.3.0),
 Suggests:
     testthat (>= 1.0.2),
     knitr (>= 1.16),
     rmarkdown (>= 1.6)
 VignetteBuilder: knitr
-biocViews: ImmunoOncology, Sequencing, Microbiome, Metagenomics
-URL: https://github.com/metagenAu/phyloseq_duckdb
-BugReports: https://github.com/metagenAu/phyloseq_duckdb/issues
+biocViews: Sequencing, Microbiome, Metagenomics
+URL: https://github.com/metagenAu/phyloseqDuckDB
+BugReports: https://github.com/metagenAu/phyloseqDuckDB/issues
 Collate:
     'allPackage.R'
     'otu_table_duckdb.R'
@@ -45,4 +49,6 @@ Collate:
     'plot_bar_duckdb.R'
     'plot_ordination_duckdb.R'
     'duckdb_aliases.R'
+    'tidyverse_accessors.R'
+    'IO-methods.R'
 RoxygenNote: 7.2.3
